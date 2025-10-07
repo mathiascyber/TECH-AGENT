@@ -1,0 +1,556 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TECH AGENT | AI Assistant</title>
+  <style>
+    :root{
+      --accent: #00ffcc;
+      --accent-600: #00bfa0;
+      --bg-dark-1: #061021;
+      --bg-dark-2: #0b1426;
+      --glass: rgba(255,255,255,0.06);
+      --glass-weak: rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.08);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Reset */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      min-height:100vh;
+      font-family:var(--font);
+      color:#fff;
+      background: linear-gradient(135deg, var(--bg-dark-1) 0%, #0a1a33 50%, var(--bg-dark-2) 100%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Subtle animated background layers */
+    .bg-gradient {
+      position:fixed; inset:0; z-index:-3; pointer-events:none;
+      background:
+        radial-gradient(800px 500px at 10% 10%, rgba(0,255,204,0.035), transparent 10%),
+        radial-gradient(700px 400px at 90% 85%, rgba(0,140,255,0.02), transparent 10%);
+      animation: bgShift 18s linear infinite alternate;
+      mix-blend-mode: screen;
+      opacity:0.95;
+    }
+    @keyframes bgShift {
+      0%{ transform: translateY(0) scale(1) rotate(0); filter: hue-rotate(0deg) }
+      100%{ transform: translateY(-10px) scale(1.02) rotate(0.2deg); filter: hue-rotate(12deg) }
+    }
+
+    .bg-particles {
+      position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:0.12;
+      background-image:
+        radial-gradient(2px 2px at 40px 60px, rgba(0,255,204,0.8), transparent),
+        radial-gradient(1px 1px at 120px 240px, rgba(0,255,204,0.4), transparent);
+      background-size: 280px 200px;
+      animation: particlesFloat 20s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes particlesFloat { 0%{ transform: translateY(0) } 50%{ transform: translateY(-24px) } 100%{ transform: translateY(0) } }
+
+    /* Sheen for glass reflection */
+    .glass-sheen {
+      position: fixed; inset: -20% -20% auto -20%; height: 60vh; width: 140%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.0) 45%);
+      transform: translateX(-40%) rotate(-8deg);
+      filter: blur(28px);
+      opacity: 0.65;
+      animation: sheen 9s linear infinite;
+      z-index:-1; pointer-events:none;
+    }
+    @keyframes sheen { 0%{ transform: translateX(-40%) rotate(-8deg)} 50%{ transform: translateX(8%) rotate(-8deg)} 100%{ transform: translateX(-40%) rotate(-8deg)} }
+
+    /* Header */
+    header{
+      padding: 18px 16px 10px;
+      text-align:center;
+      z-index:50;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .title-wrapper{
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: var(--radius-md);
+      padding: 8px 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px) saturate(140%);
+      display:inline-flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    header h1 {
+      font-size: clamp(1.4rem, 3.8vw, 2.4rem);
+      font-weight: 400;
+      margin:0;
+      letter-spacing:0.02em;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      background-image: linear-gradient(135deg, var(--accent), #eaffff 55%, var(--accent));
+      text-shadow: 0 6px 30px rgba(0,0,0,0.55);
+      transform: perspective(500px) rotateX(4deg);
+      transition: transform .28s ease;
+    }
+    header h1:hover { transform: perspective(500px) rotateX(0deg) translateZ(4px) }
+
+    .subtitle-wrapper { margin-top:4px; }
+    .subtitle {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.88);
+      letter-spacing:0.06em;
+      opacity:0.95;
+    }
+
+    /* Binary badge (kept but toned down) */
+    .binary-wrapper {
+      margin-top:6px;
+      background: rgba(0,255,204,0.03);
+      border-radius: 12px;
+      padding: 6px 10px;
+      border:1px solid rgba(0,255,204,0.05);
+      display:inline-block;
+    }
+    .binary-code {
+      font-family: 'SF Mono', 'Courier New', monospace;
+      color: rgba(0,255,204,0.8);
+      font-size: 0.78rem;
+      letter-spacing:0.08em;
+      opacity:0.95;
+    }
+
+    /* Main layout */
+    .main {
+      display:flex;
+      width:100%;
+      flex:1;
+      align-items:stretch;
+      justify-content:center;
+      position:relative;
+      padding:18px;
+      gap:18px;
+    }
+
+    /* Signup card (keeps content & structure from original but polished and animated) */
+    .signup-wrapper {
+      width:100%;
+      max-width:420px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:40;
+      transition: opacity .45s ease, transform .45s ease;
+    }
+
+    .signup-container {
+      width:100%;
+      background: var(--glass);
+      border-radius: var(--radius-lg);
+      padding: clamp(20px, 4vw, 32px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
+      backdrop-filter: blur(22px) saturate(150%);
+      text-align:center;
+      transition: transform .28s ease, opacity .28s ease;
+    }
+
+    .h2-wrapper { display:inline-block; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); margin-bottom:12px; }
+    .signup-container h2{ font-weight: 300; font-size: 1.3rem; margin-bottom:8px; }
+    .p-wrapper { display:inline-block; padding:8px 12px; border-radius:12px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); margin-bottom:14px; }
+    .signup-container p{ margin-bottom:14px; color: rgba(255,255,255,0.9); line-height:1.4; }
+
+    .name-input {
+      width:100%;
+      padding:13px 14px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+      color:#fff;
+      font-size:1rem;
+      text-align:center;
+      transition: box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .name-input::placeholder{ color: rgba(255,255,255,0.42) }
+    .name-input:focus {
+      outline:none;
+      border-color: rgba(0,255,204,0.28);
+      box-shadow: 0 10px 30px rgba(0,255,204,0.06);
+      background: rgba(255,255,255,0.12);
+    }
+
+    .signup-btn {
+      width:100%;
+      padding:12px 14px;
+      border-radius:16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      margin-top:12px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .signup-btn::before {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(135deg, rgba(0,255,204,0.85), rgba(0,180,140,0.85));
+      opacity:0; transition:opacity .22s ease; z-index:-1;
+    }
+    .signup-btn:hover::before { opacity:1; }
+    .signup-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,255,204,0.08); }
+
+    .error-wrapper { margin-top:12px; display:none; }
+    .error-msg { color: rgba(255,107,107,0.95); font-weight:600; }
+
+    /* Agent area full-screen after signin (keeps original id & behavior) */
+    .agent-wrapper {
+      position:relative;
+      flex:1;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:stretch;
+      gap:0;
+      pointer-events:none; /* unlocked when chat shown */
+    }
+
+    .welcome-user {
+      background: rgba(255,255,255,0.04);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      padding:12px 14px;
+      text-align:center;
+      font-size:1rem;
+      color:var(--accent);
+      border-radius:0 0 18px 18px;
+      display:none;
+      z-index:45;
+      pointer-events:auto;
+      backdrop-filter: blur(12px);
+      font-weight:500;
+    }
+    .welcome-user.show { display:block; }
+
+    /* preserved chat container exactly with same ID */
+    #chatInlineRoot-ba6706 {
+      position:fixed;
+      inset:0;
+      display:none;
+      width:100%;
+      height:100%;
+      background: rgba(255,255,255,0.015);
+      backdrop-filter: blur(30px) saturate(160%);
+      z-index:40;
+      overflow:auto;
+      transition: opacity .45s cubic-bezier(.2,.9,.2,1), transform .45s cubic-bezier(.2,.9,.2,1);
+      opacity:0;
+      transform: translateY(8px);
+    }
+    #chatInlineRoot-ba6706.show{ display:flex; opacity:1; transform: translateY(0) }
+    #chatInlineRoot-ba6706::before {
+      content:'';
+      position:absolute; inset:0;
+      background: rgba(255,255,255,0.005);
+      z-index:-1;
+    }
+
+    /* Aggressive (kept) hide branding CSS inside chat */
+    #chatInlineRoot-ba6706 [class*="powered"],
+    #chatInlineRoot-ba6706 [class*="agentx"],
+    #chatInlineRoot-ba6706 [id*="powered"],
+    #chatInlineRoot-ba6706 [id*="agentx"],
+    #chatInlineRoot-ba6706 .powered-by,
+    #chatInlineRoot-ba6706 .branding,
+    #chatInlineRoot-ba6706 footer,
+    #chatInlineRoot-ba6706 .footer,
+    #chatInlineRoot-ba6706 [class*="footer"],
+    #chatInlineRoot-ba6706 div[style*="bottom"],
+    #chatInlineRoot-ba6706 small,
+    #chatInlineRoot-ba6706 .attribution,
+    #chatInlineRoot-ba6706 .credit {
+      display:none !important; visibility:hidden !important; opacity:0 !important; height:0 !important; width:0 !important; overflow:hidden !important;
+    }
+
+    /* Loading overlay text (kept from original) */
+    #chatInlineRoot-ba6706:not(.loaded)::after {
+      content: 'Initializing TECH AGENT...';
+      position: absolute;
+      top: 50%; left:50%;
+      transform: translate(-50%,-50%);
+      font-size:1.125rem;
+      color: rgba(255,255,255,0.9);
+      z-index:55;
+      animation: pulse 1.4s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+    footer {
+      position:fixed;
+      bottom:12px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:60;
+      font-size:0.78rem;
+      color:rgba(255,255,255,0.28);
+      pointer-events:none;
+    }
+
+    /* Responsive */
+    @media(max-width:720px){
+      .signup-wrapper{ padding:12px; }
+      .signup-container{ padding:18px; border-radius:20px; }
+      header h1{ font-size:1.45rem }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background layers -->
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <div class="bg-particles" aria-hidden="true"></div>
+  <div class="glass-sheen" aria-hidden="true"></div>
+
+  <header>
+    <div class="title-wrapper">
+      <h1>TECH AGENT</h1>
+    </div>
+    <div class="subtitle-wrapper">
+      <div class="subtitle">Your AI-Powered Assistant</div>
+    </div>
+    <div class="binary-wrapper">
+      <div class="binary-code">0100101011 10101010 11001100 11110001</div>
+    </div>
+  </header>
+
+  <main class="main" role="main">
+    <div class="signup-wrapper" id="signupWrapper" aria-live="polite">
+      <div class="signup-container" role="form" aria-labelledby="getStarted">
+        <div class="h2-wrapper"><h2 id="getStarted">Get Started</h2></div>
+        <div class="p-wrapper"><p>Enter your name to begin chatting with TECH AGENT</p></div>
+
+        <input type="text" class="name-input" id="userName" placeholder="Enter your name..." required autocomplete="name" aria-label="Your name">
+        <button class="signup-btn" id="signupBtn" type="button">Start Chatting</button>
+
+        <div class="error-wrapper" id="errorWrapper" aria-hidden="true">
+          <div class="error-msg" id="errorMsg">Please enter a valid name.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-wrapper" aria-hidden="true">
+      <div class="welcome-user" id="welcomeUser">Welcome, <span id="displayName"></span>!</div>
+      <div id="chatInlineRoot-ba6706">
+        <!-- Original AgentX script preserved exactly as in your first file -->
+        <script defer src="https://storage.googleapis.com/agentx-cdn-01/agentx-chat.js?agx=68e251909986ee44c8ba6706RxdxlJKB72rcbWSm37Gvlw%3D%3D%7CAvGG07ZyBAaJof%2FSh3FFsAQY9fKdovh6OtXco5eGR1I%3D"></script>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 TECH AGENT. All Rights Reserved.</footer>
+
+  <script>
+    // Keep function name global (preserves compatibility with any external code expecting handleSignup)
+    (function() {
+      // Local references
+      const signupWrapper = document.getElementById('signupWrapper');
+      const signupBtn = document.getElementById('signupBtn');
+      const nameInput = document.getElementById('userName');
+      const errorMsg = document.getElementById('errorMsg');
+      const errorWrapper = document.getElementById('errorWrapper');
+      const welcomeUser = document.getElementById('welcomeUser');
+      const displayName = document.getElementById('displayName');
+      const chatRoot = document.getElementById('chatInlineRoot-ba6706');
+
+      // Sanitize/hide branding inside chat container (keeps your original aggressive approach but made defensive)
+      function hideBranding(root) {
+        if (!root) return;
+        try {
+          // inject CSS rules to hide known branding places
+          const styles = document.createElement('style');
+          styles.id = 'agentx-hide-styles';
+          styles.textContent = `
+            #chatInlineRoot-ba6706 [class*="powered"],
+            #chatInlineRoot-ba6706 [class*="agentx"],
+            #chatInlineRoot-ba6706 [id*="powered"],
+            #chatInlineRoot-ba6706 [id*="agentx"],
+            #chatInlineRoot-ba6706 .powered-by,
+            #chatInlineRoot-ba6706 .branding,
+            #chatInlineRoot-ba6706 footer,
+            #chatInlineRoot-ba6706 .footer,
+            #chatInlineRoot-ba6706 [class*="footer"],
+            #chatInlineRoot-ba6706 div[style*="bottom"],
+            #chatInlineRoot-ba6706 small,
+            #chatInlineRoot-ba6706 .attribution,
+            #chatInlineRoot-ba6706 .credit {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+              height: 0 !important;
+              width: 0 !important;
+              overflow: hidden !important;
+            }
+          `;
+          if (!document.getElementById('agentx-hide-styles')) document.head.appendChild(styles);
+        } catch (e) { /* ignore */ }
+
+        // remove text nodes containing branding words
+        function removeBrandingText(node) {
+          try {
+            if (!node) return;
+            if (node.nodeType === Node.TEXT_NODE) {
+              const txt = (node.textContent || '').toLowerCase();
+              if (txt.includes('powered by') || txt.includes('agentx')) node.textContent = '';
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              const txt = (node.textContent || '').toLowerCase();
+              if (txt.includes('powered by') || txt.includes('agentx')) node.style.display = 'none';
+              for (let child of Array.from(node.childNodes)) removeBrandingText(child);
+            }
+          } catch (e) {}
+        }
+        removeBrandingText(root);
+
+        // observe dynamic content
+        try {
+          if (typeof MutationObserver !== 'undefined' && !root.__agentx_observer) {
+            const mo = new MutationObserver((mutations) => {
+              for (const m of mutations) {
+                if (m.type === 'childList' && m.addedNodes.length) {
+                  m.addedNodes.forEach(n => removeBrandingText(n));
+                } else if (m.type === 'characterData') {
+                  removeBrandingText(m.target);
+                }
+              }
+            });
+            mo.observe(root, { childList: true, subtree: true, characterData: true });
+            root.__agentx_observer = mo;
+          }
+        } catch (e) {}
+      }
+
+      // show chat UI elegantly (fade + blur)
+      function showChatUI(userName) {
+        // fade out signup
+        signupWrapper.style.transition = 'opacity .42s ease, transform .42s ease';
+        signupWrapper.style.opacity = '0';
+        signupWrapper.style.transform = 'translateY(8px)';
+        setTimeout(() => { signupWrapper.style.display = 'none'; }, 460);
+
+        // show welcome banner
+        displayName.textContent = userName;
+        welcomeUser.classList.add('show');
+
+        // show chat container full-screen
+        chatRoot.classList.add('show');
+        chatRoot.style.pointerEvents = 'auto';
+        // attempt to sanitize branding once and again after script has time to render
+        hideBranding(chatRoot);
+        setTimeout(() => hideBranding(chatRoot), 900);
+        setTimeout(() => hideBranding(chatRoot), 2500);
+      }
+
+      // validate name
+      function validName(s) { return !!s && s.trim().length >= 2; }
+
+      // Global handler name preserved
+      window.handleSignup = function handleSignup() {
+        const userName = (nameInput.value || '').trim();
+        if (!validName(userName)) {
+          errorMsg.style.display = 'block';
+          errorWrapper.style.display = 'block';
+          nameInput.focus();
+          return;
+        }
+        // persist
+        try {
+          localStorage.setItem('userName', userName);
+          localStorage.setItem('userSignedUp', 'true');
+        } catch (e) { /* localStorage might be disabled */ }
+
+        errorMsg.style.display = 'none';
+        errorWrapper.style.display = 'none';
+
+        showChatUI(userName);
+      };
+
+      // wire UI events safely
+      signupBtn.addEventListener('click', () => window.handleSignup());
+      nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') window.handleSignup(); });
+
+      // If returning user — replicate original behavior exactly
+      try {
+        const savedName = localStorage.getItem('userName');
+        if (savedName && localStorage.getItem('userSignedUp') === 'true') {
+          nameInput.value = savedName;
+          // hide signup immediately and show chat
+          signupWrapper.style.display = 'none';
+          displayName.textContent = savedName;
+          welcomeUser.classList.add('show');
+          chatRoot.classList.add('show');
+          chatRoot.classList.add('loaded');
+          chatRoot.style.pointerEvents = 'auto';
+          // schedule sanitization
+          setTimeout(() => hideBranding(chatRoot), 700);
+          setTimeout(() => hideBranding(chatRoot), 2000);
+        }
+      } catch (e) {}
+
+      // Monitor the AgentX script tag within the chat container and sanitize once it's loaded
+      (function watchAgentScript() {
+        try {
+          const innerScript = chatRoot.querySelector('script');
+          if (innerScript) {
+            innerScript.addEventListener('load', function() {
+              chatRoot.classList.add('loaded');
+              hideBranding(chatRoot);
+            });
+            innerScript.addEventListener('error', function() {
+              console.warn('AgentX script failed to load');
+            });
+            // If already loaded (some browsers), try to sanitize
+            if (innerScript.readyState === 'complete' || innerScript.readyState === 'loaded') {
+              chatRoot.classList.add('loaded');
+              hideBranding(chatRoot);
+            }
+          } else {
+            // poll briefly for insertion if not found
+            let attempts = 0;
+            const poll = setInterval(() => {
+              attempts++;
+              const s = chatRoot.querySelector('script');
+              if (s) {
+                clearInterval(poll);
+                s.addEventListener('load', () => { chatRoot.classList.add('loaded'); hideBranding(chatRoot); });
+                s.addEventListener('error', () => console.warn('AgentX script failed to load'));
+              } else if (attempts > 20) {
+                clearInterval(poll);
+              }
+            }, 200);
+          }
+        } catch (e) {}
+      })();
+
+      // Extra defensive sanitation passes
+      setTimeout(() => hideBranding(chatRoot), 1200);
+      setTimeout(() => hideBranding(chatRoot), 3200);
+    })();
+  </script>
+</body>
+</html>
