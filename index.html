@@ -18,7 +18,7 @@
       --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
-    /* Reset */
+    
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
     body{
@@ -33,7 +33,7 @@
       flex-direction:column;
     }
 
-    /* Subtle animated background layers */
+    
     .bg-gradient {
       position:fixed; inset:0; z-index:-3; pointer-events:none;
       background:
@@ -59,7 +59,7 @@
     }
     @keyframes particlesFloat { 0%{ transform: translateY(0) } 50%{ transform: translateY(-24px) } 100%{ transform: translateY(0) } }
 
-    /* Sheen for glass reflection */
+    
     .glass-sheen {
       position: fixed; inset: -20% -20% auto -20%; height: 60vh; width: 140%;
       background: linear-gradient(120deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.0) 45%);
@@ -71,7 +71,7 @@
     }
     @keyframes sheen { 0%{ transform: translateX(-40%) rotate(-8deg)} 50%{ transform: translateX(8%) rotate(-8deg)} 100%{ transform: translateX(-40%) rotate(-8deg)} }
 
-    /* Header */
+    
     header{
       padding: 18px 16px 10px;
       text-align:center;
@@ -118,7 +118,7 @@
       opacity:0.95;
     }
 
-    /* Binary badge (kept but toned down) */
+
     .binary-wrapper {
       margin-top:6px;
       background: rgba(0,255,204,0.03);
@@ -135,7 +135,7 @@
       opacity:0.95;
     }
 
-    /* Main layout */
+   
     .main {
       display:flex;
       width:100%;
@@ -147,7 +147,7 @@
       gap:18px;
     }
 
-    /* Signup card (keeps content & structure from original but polished and animated) */
+   
     .signup-wrapper {
       width:100%;
       max-width:420px;
@@ -220,7 +220,7 @@
     .error-wrapper { margin-top:12px; display:none; }
     .error-msg { color: rgba(255,107,107,0.95); font-weight:600; }
 
-    /* Agent area full-screen after signin (keeps original id & behavior) */
+   
     .agent-wrapper {
       position:relative;
       flex:1;
@@ -230,7 +230,7 @@
       align-items:stretch;
       justify-content:stretch;
       gap:0;
-      pointer-events:none; /* unlocked when chat shown */
+      pointer-events:none; 
     }
 
     .welcome-user {
@@ -249,7 +249,7 @@
     }
     .welcome-user.show { display:block; }
 
-    /* preserved chat container exactly with same ID */
+   
     #chatInlineRoot-ba6706 {
       position:fixed;
       inset:0;
@@ -272,7 +272,7 @@
       z-index:-1;
     }
 
-    /* Aggressive (kept) hide branding CSS inside chat */
+   
     #chatInlineRoot-ba6706 [class*="powered"],
     #chatInlineRoot-ba6706 [class*="agentx"],
     #chatInlineRoot-ba6706 [id*="powered"],
@@ -289,7 +289,7 @@
       display:none !important; visibility:hidden !important; opacity:0 !important; height:0 !important; width:0 !important; overflow:hidden !important;
     }
 
-    /* Loading overlay text (kept from original) */
+   
     #chatInlineRoot-ba6706:not(.loaded)::after {
       content: 'Initializing TECH AGENT...';
       position: absolute;
@@ -314,7 +314,7 @@
       pointer-events:none;
     }
 
-    /* Responsive */
+    
     @media(max-width:720px){
       .signup-wrapper{ padding:12px; }
       .signup-container{ padding:18px; border-radius:20px; }
@@ -331,7 +331,7 @@
 </body>
 
 
-  <!-- Background layers -->
+ 
   <div class="bg-gradient" aria-hidden="true"></div>
   <div class="bg-particles" aria-hidden="true"></div>
   <div class="glass-sheen" aria-hidden="true"></div>
@@ -366,7 +366,7 @@
     <div class="agent-wrapper" aria-hidden="true">
       <div class="welcome-user" id="welcomeUser">Welcome, <span id="displayName"></span>!</div>
       <div id="chatInlineRoot-ba6706">
-        <!-- Original AgentX script preserved exactly as in your first file -->
+       
         <script defer src="https://storage.googleapis.com/agentx-cdn-01/agentx-chat.js?agx=68e251909986ee44c8ba6706RxdxlJKB72rcbWSm37Gvlw%3D%3D%7CAvGG07ZyBAaJof%2FSh3FFsAQY9fKdovh6OtXco5eGR1I%3D"></script>
       </div>
     </div>
@@ -375,9 +375,9 @@
   <footer>© 2025 TECH AGENT. All Rights Reserved.</footer>
 
   <script>
-    // Keep function name global (preserves compatibility with any external code expecting handleSignup)
+ 
     (function() {
-      // Local references
+     
       const signupWrapper = document.getElementById('signupWrapper');
       const signupBtn = document.getElementById('signupBtn');
       const nameInput = document.getElementById('userName');
@@ -387,11 +387,11 @@
       const displayName = document.getElementById('displayName');
       const chatRoot = document.getElementById('chatInlineRoot-ba6706');
 
-      // Sanitize/hide branding inside chat container (keeps your original aggressive approach but made defensive)
+     
       function hideBranding(root) {
         if (!root) return;
         try {
-          // inject CSS rules to hide known branding places
+        
           const styles = document.createElement('style');
           styles.id = 'agentx-hide-styles';
           styles.textContent = `
@@ -419,7 +419,7 @@
           if (!document.getElementById('agentx-hide-styles')) document.head.appendChild(styles);
         } catch (e) { /* ignore */ }
 
-        // remove text nodes containing branding words
+      
         function removeBrandingText(node) {
           try {
             if (!node) return;
@@ -435,7 +435,7 @@
         }
         removeBrandingText(root);
 
-        // observe dynamic content
+       
         try {
           if (typeof MutationObserver !== 'undefined' && !root.__agentx_observer) {
             const mo = new MutationObserver((mutations) => {
@@ -453,31 +453,31 @@
         } catch (e) {}
       }
 
-      // show chat UI elegantly (fade + blur)
+      
       function showChatUI(userName) {
-        // fade out signup
+        
         signupWrapper.style.transition = 'opacity .42s ease, transform .42s ease';
         signupWrapper.style.opacity = '0';
         signupWrapper.style.transform = 'translateY(8px)';
         setTimeout(() => { signupWrapper.style.display = 'none'; }, 460);
 
-        // show welcome banner
+       
         displayName.textContent = userName;
         welcomeUser.classList.add('show');
 
-        // show chat container full-screen
+       
         chatRoot.classList.add('show');
         chatRoot.style.pointerEvents = 'auto';
-        // attempt to sanitize branding once and again after script has time to render
+       
         hideBranding(chatRoot);
         setTimeout(() => hideBranding(chatRoot), 900);
         setTimeout(() => hideBranding(chatRoot), 2500);
       }
 
-      // validate name
+    
       function validName(s) { return !!s && s.trim().length >= 2; }
 
-      // Global handler name preserved
+ 
       window.handleSignup = function handleSignup() {
         const userName = (nameInput.value || '').trim();
         if (!validName(userName)) {
@@ -486,7 +486,7 @@
           nameInput.focus();
           return;
         }
-        // persist
+      
         try {
           localStorage.setItem('userName', userName);
           localStorage.setItem('userSignedUp', 'true');
@@ -498,11 +498,11 @@
         showChatUI(userName);
       };
 
-      // wire UI events safely
+     
       signupBtn.addEventListener('click', () => window.handleSignup());
       nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') window.handleSignup(); });
 
-      // If returning user — replicate original behavior exactly
+     
       try {
         const savedName = localStorage.getItem('userName');
         if (savedName && localStorage.getItem('userSignedUp') === 'true') {
@@ -514,13 +514,13 @@
           chatRoot.classList.add('show');
           chatRoot.classList.add('loaded');
           chatRoot.style.pointerEvents = 'auto';
-          // schedule sanitization
+          
           setTimeout(() => hideBranding(chatRoot), 700);
           setTimeout(() => hideBranding(chatRoot), 2000);
         }
       } catch (e) {}
 
-      // Monitor the AgentX script tag within the chat container and sanitize once it's loaded
+    
       (function watchAgentScript() {
         try {
           const innerScript = chatRoot.querySelector('script');
@@ -532,13 +532,13 @@
             innerScript.addEventListener('error', function() {
               console.warn('AgentX script failed to load');
             });
-            // If already loaded (some browsers), try to sanitize
+           
             if (innerScript.readyState === 'complete' || innerScript.readyState === 'loaded') {
               chatRoot.classList.add('loaded');
               hideBranding(chatRoot);
             }
           } else {
-            // poll briefly for insertion if not found
+            
             let attempts = 0;
             const poll = setInterval(() => {
               attempts++;
@@ -555,12 +555,13 @@
         } catch (e) {}
       })();
 
-      // Extra defensive sanitation passes
+ 
       setTimeout(() => hideBranding(chatRoot), 1200);
       setTimeout(() => hideBranding(chatRoot), 3200);
     })();
   </script>
 </body>
 </html>
+
 
 
